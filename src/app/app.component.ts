@@ -47,6 +47,7 @@ export class AppComponent implements AfterViewInit {
     this.drawFrame();
     this.drawVirus(width / 2, height / 2, timestamp);
     this.drawDaemon(width / 3, height / 3, timestamp);
+    this.drawKernelGrid(this.ctx, timestamp);
 
     requestAnimationFrame(this.animate);
   };
@@ -273,6 +274,50 @@ export class AppComponent implements AfterViewInit {
       ctx.stroke();
 
       ctx.restore();
+    }
+
+    ctx.restore();
+  }
+
+  drawKernelGrid(ctx: CanvasRenderingContext2D, time: number) {
+    ctx.save();
+
+    const cellSize = 120;
+    const cols = 7;
+    const rows = 7;
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const px = x * cellSize + (width - cols * cellSize) / 2;
+        const py = y * cellSize + (height - rows * cellSize) / 2;
+
+        // Flickering background tint
+        const flicker = Math.random() * 0.1;
+        ctx.fillStyle = `rgba(10, 10, 10, ${0.2 + flicker})`;
+        ctx.fillRect(px, py, cellSize, cellSize);
+
+        // Glitchy green grid lines
+        ctx.strokeStyle = `rgba(0, 255, 0, ${0.4 + Math.sin((time + x * y * 13) / 500) * 0.2})`;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(
+          px + Math.sin(time / 1000 + x) * 0.5,
+          py + Math.cos(time / 900 + y) * 0.5,
+          cellSize,
+          cellSize
+        );
+
+        // Random ASCII glitch artifacts
+        ctx.fillStyle = 'rgba(0, 255, 70, 0.4)';
+        ctx.font = '12px monospace';
+        const chars = ['▒', '░', '*', '>', '#', '&', 'Φ'];
+        const ch = chars[Math.floor(Math.random() * chars.length)];
+        if (Math.random() > 0.8) {
+          ctx.fillText(ch, px + Math.random() * cellSize * 0.6, py + Math.random() * cellSize * 0.8);
+        }
+      }
     }
 
     ctx.restore();
