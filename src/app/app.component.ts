@@ -2,6 +2,7 @@ import {AfterViewInit, Component, ElementRef, HostListener, ViewChild} from '@an
 import {VirusService} from '../services/game-entities/virus/virus.service';
 import {FirewallService} from '../services/game-entities/firewall/firewall.service';
 import {DaemonService} from '../services/game-entities/daemon/daemon.service';
+import {DatabaseService} from '../services/game-entities/database/database.service';
 
 @Component({
   selector: 'app-root',
@@ -21,7 +22,7 @@ export class AppComponent implements AfterViewInit {
   private cachedAddressesRight: string[] = [];
   private lastAddressUpdate = 0;
 
-  constructor(private virus: VirusService, private firewall: FirewallService, private daemon: DaemonService) {
+  constructor(private virus: VirusService, private firewall: FirewallService, private daemon: DaemonService, private database: DatabaseService) {
   }
 
   ngAfterViewInit(): void {
@@ -29,6 +30,7 @@ export class AppComponent implements AfterViewInit {
     this.virus.ctx = this.ctx;
     this.firewall.ctx = this.ctx;
     this.daemon.ctx = this.ctx;
+    this.database.ctx = this.ctx;
     requestAnimationFrame(this.animate);
   }
 
@@ -58,6 +60,7 @@ export class AppComponent implements AfterViewInit {
     this.virus.draw(width / 2, height / 2, timestamp);
     this.daemon.draw(width / 3.6, height / 2.74, timestamp);
     this.firewall.draw(width / 1.64, height / 1.57, timestamp);
+    this.database.draw(width / 1.64, height / 2.73, timestamp);
 
     requestAnimationFrame(this.animate);
   };
@@ -105,6 +108,7 @@ export class AppComponent implements AfterViewInit {
     this.virus.draw(width / 2, height / 2, Date.now());
     this.daemon.draw(width / 3.6, height / 2.74, Date.now());
     this.firewall.draw(width / 1.64, height / 1.57, Date.now());
+    this.database.draw(width / 1.5, height / 3, Date.now());
   }
 
   private drawFrame(): void {
