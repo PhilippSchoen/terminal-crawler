@@ -1,20 +1,10 @@
-import { Injectable } from '@angular/core';
 import {GameEntity} from '../game-entity';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class VirusService implements GameEntity {
+export class VirusEntity implements GameEntity {
 
-  ctx?: CanvasRenderingContext2D;
-
-  constructor() { }
+  constructor(public ctx: CanvasRenderingContext2D) { }
 
   draw(x: number, y: number, timestamp: number): void {
-
-    if(!this.ctx)
-      return;
-
     const ctx = this.ctx;
     ctx.save();
     ctx.scale(0.6, 0.6);
@@ -76,7 +66,7 @@ export class VirusService implements GameEntity {
     for (let i = 0; i < 3; i++) {
       const r = 50 + i * 10 + Math.sin(timestamp / (200 + i * 50)) * 2;
       ctx.beginPath();
-      ctx.strokeStyle = `rgba(255, ${50 + i * 50}, ${100 + i * 50}, 0.15)`;
+      ctx.strokeStyle = `rgba(255, ${50 + i * 50}, ${100 + i * 50}, 0.4)`;
       ctx.setLineDash([Math.random() * 4 + 2, Math.random() * 6 + 3]);
       ctx.lineWidth = 0.5;
       ctx.arc(x, y, r, 0, Math.PI * 2);

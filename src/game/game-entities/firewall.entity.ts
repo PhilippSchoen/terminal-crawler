@@ -1,19 +1,11 @@
-import { Injectable } from '@angular/core';
 import {GameEntity} from '../game-entity';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class FirewallService implements GameEntity {
 
-  ctx?: CanvasRenderingContext2D;
+export class FirewallEntity implements GameEntity {
 
-  constructor() { }
+  constructor(public ctx: CanvasRenderingContext2D) { }
 
   draw(x: number, y: number, timestamp: number): void {
-    if(!this.ctx)
-      return;
-
     const ctx = this.ctx;
     const radius = 45;
     const pulse = 4 + Math.sin(timestamp / 200) * 3;

@@ -1,19 +1,10 @@
-import { Injectable } from '@angular/core';
 import {GameEntity} from '../game-entity';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class DaemonService implements GameEntity {
+export class DaemonEntity implements GameEntity {
 
-  ctx?: CanvasRenderingContext2D;
-
-  constructor() { }
+  constructor(public ctx: CanvasRenderingContext2D) { }
 
   draw(x: number, y: number, timestamp: number): void {
-    if(!this.ctx)
-      return;
-
     const ctx = this.ctx;
     ctx.save();
     ctx.translate(x, y);

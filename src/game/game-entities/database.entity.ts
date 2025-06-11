@@ -1,20 +1,10 @@
-import { Injectable } from '@angular/core';
 import {GameEntity} from '../game-entity';
-import {timestamp} from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class DatabaseService implements GameEntity {
+export class DatabaseEntity implements GameEntity {
 
-  ctx?: CanvasRenderingContext2D;
-
-  constructor() { }
+  constructor(public ctx: CanvasRenderingContext2D) { }
 
   draw(x: number, y: number, timestamp: number): void {
-    if(!this.ctx)
-      return;
-
     const ctx = this.ctx;
     ctx.save();
     ctx.translate(x, y);
