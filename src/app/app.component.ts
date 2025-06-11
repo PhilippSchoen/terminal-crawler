@@ -46,8 +46,9 @@ export class AppComponent implements AfterViewInit {
 
     this.drawFrame();
     this.drawVirus(width / 2, height / 2, timestamp);
-    this.drawDaemon(width / 3, height / 3, timestamp);
+    this.drawDaemon(width / 3.6, height / 2.74, timestamp);
     this.drawKernelGrid(this.ctx, timestamp);
+    this.drawFirewall(width / 1.64, height / 1.57, timestamp);
 
     requestAnimationFrame(this.animate);
   };
@@ -207,7 +208,7 @@ export class AppComponent implements AfterViewInit {
     const ctx = this.ctx;
     ctx.save();
 
-    const coreRadius = 25;
+    const coreRadius = 20;
     const bladeCount = 8;
     const bladeLength = 30;
     const rotationSpeed = 0.0015;
@@ -321,6 +322,102 @@ export class AppComponent implements AfterViewInit {
     }
 
     ctx.restore();
+  }
+
+  private drawFirewall(x: number, y: number, time: number) {
+    const ctx = this.ctx;
+    ctx.save(); // <-- outer save (translate)
+
+    ctx.translate(x, y);
+
+    const pulse = 4 + Math.sin(time / 200) * 3;
+    const noiseFactor = 5;
+    const radius = 45;
+
+    // Construct the chaotic firewall path
+    ctx.beginPath();
+    for (let a = 0; a <= Math.PI * 2 + 0.1; a += 0.1) {
+      const r =
+        radius +
+        Math.sin(time / 300 + a * 5) * pulse +
+        Math.sin(a * 9 + time / 500) * noiseFactor;
+      const px = Math.cos(a) * r;
+      const py = Math.sin(a) * r * 1.2;
+      if (a === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+
+    // Fill core with flickering noise first
+    const gradient = ctx.createRadialGradient(0, 0, 10, 0, 0, radius);
+    gradient.addColorStop(0, '#220000');
+    gradient.addColorStop(1, '#110000');
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Clip to the firewall shape
+    ctx.save();  // <-- save for clipping
+    ctx.clip();
+
+    // Draw the grid inside the clipped firewall area
+    const gridSpacing = 10;
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = `rgba(255, 0, 0, ${0.05 + 0.1 * Math.sin(time / 200)})`;
+
+    // Vertical grid lines
+    for (let gx = -radius; gx <= radius; gx += gridSpacing) {
+      ctx.beginPath();
+      ctx.moveTo(gx, -radius * 1.2);
+      ctx.lineTo(gx, radius * 1.2);
+      ctx.stroke();
+    }
+
+    // Horizontal grid lines
+    for (let gy = -radius * 1.2; gy <= radius * 1.2; gy += gridSpacing) {
+      ctx.beginPath();
+      ctx.moveTo(-radius, gy);
+      ctx.lineTo(radius, gy);
+      ctx.stroke();
+    }
+
+    ctx.restore();  // <-- restore after clipping
+
+    // Rebuild firewall path for border stroke
+    ctx.beginPath();
+    for (let a = 0; a <= Math.PI * 2 + 0.1; a += 0.1) {
+      const r =
+        radius +
+        Math.sin(time / 300 + a * 5) * pulse +
+        Math.sin(a * 9 + time / 500) * noiseFactor;
+      const px = Math.cos(a) * r;
+      const py = Math.sin(a) * r * 1.2;
+      if (a === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+
+    ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Glitch shards
+    for (let i = 0; i < 20; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.random() * radius * 0.9;
+      const gx = Math.cos(angle) * dist;
+      const gy = Math.sin(angle) * dist;
+      const w = Math.random() * 6 + 2;
+      const h = Math.random() * 2 + 1;
+      ctx.fillStyle = `rgba(255, 0, 0, ${Math.random() * 0.15})`;
+      ctx.fillRect(gx, gy, w, h);
+    }
+
+    // Flickering scan line
+    const sweepY = Math.sin(time / 400) * radius * 0.9;
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.06)';
+    ctx.fillRect(-radius, sweepY - 3, radius * 2, 6);
+
+    ctx.restore(); // <-- restore outer context (translate)
   }
 
 }
