@@ -124,6 +124,9 @@ export class AppComponent implements AfterViewInit {
     const percept = this.createPercept();
     const [x, y] = this.agent.perceive(percept);
     this.virus.position = this.grid.cells[x][y];
+    if( this.grid.cells[x][y].gameEntity instanceof DatabaseEntity) {
+      this.database.isVisible = false;
+    }
   }
 
   private getAdjacentCells(cell: { x: number; y: number }): { x: number; y: number }[] {

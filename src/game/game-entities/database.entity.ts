@@ -3,10 +3,13 @@ import {GameEntity} from '../game-entity';
 export class DatabaseEntity implements GameEntity {
 
   position = { x: 0, y: 0 };
+  isVisible = true;
 
   constructor(public ctx: CanvasRenderingContext2D) { }
 
   draw(timestamp: number): void {
+    if (!this.isVisible) return;
+
     const ctx = this.ctx;
     ctx.save();
     ctx.translate(this.position.x, this.position.y);
