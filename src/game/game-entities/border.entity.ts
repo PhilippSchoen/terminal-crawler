@@ -2,6 +2,8 @@ import {GameEntity} from '../game-entity';
 
 export class BorderEntity implements GameEntity {
 
+  position = { x: 0, y: 0 };
+
   private cachedAddressesTop: string[] = [];
   private cachedAddressesBottom: string[] = [];
   private cachedAddressesLeft: string[] = [];
@@ -10,7 +12,7 @@ export class BorderEntity implements GameEntity {
 
   constructor(public ctx: CanvasRenderingContext2D) {}
 
-  draw(x: number, y: number, timestamp: number): void {
+  draw(timestamp: number): void {
     const width = window.innerWidth;
     const height = window.innerHeight;
 

@@ -2,12 +2,14 @@ import {GameEntity} from '../game-entity';
 
 export class DatabaseEntity implements GameEntity {
 
+  position = { x: 0, y: 0 };
+
   constructor(public ctx: CanvasRenderingContext2D) { }
 
-  draw(x: number, y: number, timestamp: number): void {
+  draw(timestamp: number): void {
     const ctx = this.ctx;
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(this.position.x, this.position.y);
 
     const coreSize = 30;
 

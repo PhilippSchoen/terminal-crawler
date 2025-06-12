@@ -1,5 +1,6 @@
 export interface GameEntity {
   ctx?: CanvasRenderingContext2D;
+  position: { x: number; y: number };
 
-  draw(x: number, y: number, timestamp: number): void;
+  draw(timestamp: number): void;
 }

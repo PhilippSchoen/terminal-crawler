@@ -2,10 +2,14 @@ import {GameEntity} from '../game-entity';
 
 export class VirusEntity implements GameEntity {
 
+  position = { x: 0, y: 0 };
+
   constructor(public ctx: CanvasRenderingContext2D) { }
 
-  draw(x: number, y: number, timestamp: number): void {
+  draw(timestamp: number): void {
     const ctx = this.ctx;
+    let x = this.position.x;
+    let y = this.position.y;
     ctx.save();
     ctx.scale(0.6, 0.6);
     x /= 0.6;

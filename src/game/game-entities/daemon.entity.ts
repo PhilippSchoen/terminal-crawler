@@ -2,12 +2,14 @@ import {GameEntity} from '../game-entity';
 
 export class DaemonEntity implements GameEntity {
 
+  position = { x: 0, y: 0 };
+
   constructor(public ctx: CanvasRenderingContext2D) { }
 
-  draw(x: number, y: number, timestamp: number): void {
+  draw(timestamp: number): void {
     const ctx = this.ctx;
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(this.position.x, this.position.y);
 
     this.drawCore(ctx, 0, 0, timestamp);
     this.drawEye(ctx, 0, 0, timestamp);

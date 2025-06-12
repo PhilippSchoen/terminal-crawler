@@ -2,11 +2,14 @@ import {GameEntity} from '../game-entity';
 
 export class GridEntity implements GameEntity {
 
+  position = { x: 0, y: 0 };
   cells: { x: number; y: number; size: number }[][] = [];
 
-  constructor(public ctx: CanvasRenderingContext2D) { }
+  constructor(public ctx: CanvasRenderingContext2D) {
+    this.initCells();
+  }
 
-  draw(x: number, y: number, timestamp: number): void {
+  draw(timestamp: number): void {
     this.cells = [];
     const ctx = this.ctx;
     ctx.save();
@@ -42,6 +45,25 @@ export class GridEntity implements GameEntity {
     }
 
     ctx.restore();
+  }
+
+  private initCells() {
+    const cellSize = 120;
+    const cols = 7;
+    const rows = 7;
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    for (let y = 0; y < rows; y++) {
+      this.cells.push([]);
+      for (let x = 0; x < cols; x++) {
+        const px = x * cellSize + (width - cols * cellSize) / 2;
+        const py = y * cellSize + (height - rows * cellSize) / 2;
+
+        this.cells[y].push({ x: px + cellSize / 2, y: py + cellSize / 2, size: cellSize });
+      }
+    }
   }
 
   private drawBackgroundTint(ctx: CanvasRenderingContext2D, x: number, y: number, cellSize: number) {

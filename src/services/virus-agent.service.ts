@@ -1,26 +1,21 @@
 import { Injectable } from '@angular/core';
-import {Fact} from './entities/fact';
-import {Percept} from './entities/percept';
+import { Fact } from './entities/fact';
+import { Percept } from './entities/percept';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VirusAgentService {
-
-  constructor() { }
-
   kb: Map<string, Fact> = new Map<string, Fact>();
   position: [number, number] = [3, 3];
 
   perceive(percept: Percept) {
     const [x, y] = this.position;
     const key = `${x},${y}`;
-
     this.updateKnowledgeBase(key, percept);
     this.inferKnowledge();
 
-    const nextMove = this.planNextMove();
-    this.move(nextMove);
+    return this.planNextMove();
   }
 
   private updateKnowledgeBase(key: string, percept: Percept) {
@@ -64,28 +59,55 @@ export class VirusAgentService {
         return f?.mayBeFirewall && !f.certainFirewall;
       });
 
-      if (fact.hasDaemonScan && possibleDaemon.length === 1) {
-        const [i, j] = possibleDaemon[0];
-        const f = this.kb.get(`${i},${j}`)!;
-        f.certainDaemon = true;
-        f.mayBeDaemon = false;
-        this.kb.set(`${i},${j}`, f);
-      }
-
-      if (fact.hasFirewallGlitch && possibleFirewall.length === 1) {
-        const [i, j] = possibleFirewall[0];
-        const f = this.kb.get(`${i},${j}`)!;
-        f.certainFirewall = true;
-        f.mayBeFirewall = false;
-        this.kb.set(`${i},${j}`, f);
-      }
-
-      if (!fact.hasDaemonScan && !fact.hasFirewallGlitch) {
+      if (fact.hasDaemonScan) {
+        if (possibleDaemon.length === 1) {
+          const [i, j] = possibleDaemon[0];
+          const f = this.kb.get(`${i},${j}`)!;
+          f.certainDaemon = true;
+          f.mayBeDaemon = false;
+          this.kb.set(`${i},${j}`, f);
+        } else {
+          for (const [i, j] of adj) {
+            const k = `${i},${j}`;
+            const f = this.kb.get(k) || {} as Fact;
+            if (!f.safe && !f.certainDaemon) {
+              f.mayBeDaemon = true;
+              this.kb.set(k, f);
+            }
+          }
+        }
+      } else {
         for (const [i, j] of adj) {
           const k = `${i},${j}`;
           const f = this.kb.get(k) || {} as Fact;
           f.safe = true;
           f.mayBeDaemon = false;
+          this.kb.set(k, f);
+        }
+      }
+
+      if (fact.hasFirewallGlitch) {
+        if (possibleFirewall.length === 1) {
+          const [i, j] = possibleFirewall[0];
+          const f = this.kb.get(`${i},${j}`)!;
+          f.certainFirewall = true;
+          f.mayBeFirewall = false;
+          this.kb.set(`${i},${j}`, f);
+        } else {
+          for (const [i, j] of adj) {
+            const k = `${i},${j}`;
+            const f = this.kb.get(k) || {} as Fact;
+            if (!f.safe && !f.certainFirewall) {
+              f.mayBeFirewall = true;
+              this.kb.set(k, f);
+            }
+          }
+        }
+      } else {
+        for (const [i, j] of adj) {
+          const k = `${i},${j}`;
+          const f = this.kb.get(k) || {} as Fact;
+          f.safe = true;
           f.mayBeFirewall = false;
           this.kb.set(k, f);
         }
@@ -108,11 +130,9 @@ export class VirusAgentService {
       }
     }
 
-    return nextTile || this.position;
-  }
+    this.position = nextTile || this.position;
 
-  private move(move: [number, number]) {
-
+    return this.position;
   }
 
   private getAdjacentTiles(x: number, y: number): [number, number][] {

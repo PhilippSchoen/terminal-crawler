@@ -3,15 +3,17 @@ import {GameEntity} from '../game-entity';
 
 export class FirewallEntity implements GameEntity {
 
+  position = { x: 0, y: 0 };
+
   constructor(public ctx: CanvasRenderingContext2D) { }
 
-  draw(x: number, y: number, timestamp: number): void {
+  draw(timestamp: number): void {
     const ctx = this.ctx;
     const radius = 45;
     const pulse = 4 + Math.sin(timestamp / 200) * 3;
     const noiseFactor = 5;
 
-    this.drawFirewallShape(ctx, x, y, timestamp, pulse, noiseFactor, radius);
+    this.drawFirewallShape(ctx, this.position.x, this.position.y, timestamp, pulse, noiseFactor, radius);
     this.drawFirewallGrid(ctx, radius, timestamp);
     this.drawFirewallBorder(ctx, radius, timestamp);
     this.drawGlitchShards(ctx, radius, timestamp);
