@@ -32,11 +32,16 @@ export class VirusAgentService {
       const adjacentKey = `${i},${j}`;
       const adjacentCell = this.kb.get(adjacentKey) || {} as Fact;
 
-      if (percept.firewallGlitch && !adjacentCell.safe && !adjacentCell.certainFirewall) {
-        adjacentCell.mayBeFirewall = true;
+      if (percept.firewallGlitch) {
+        if (!adjacentCell.safe && !adjacentCell.certainFirewall) {
+          adjacentCell.mayBeFirewall = true;
+        }
       }
-      if (percept.daemonScan && !adjacentCell.safe && !adjacentCell.certainDaemon) {
-        adjacentCell.mayBeDaemon = true;
+
+      if (percept.daemonScan) {
+        if (!adjacentCell.safe && !adjacentCell.certainDaemon) {
+          adjacentCell.mayBeDaemon = true;
+        }
       }
 
       this.kb.set(adjacentKey, adjacentCell);
@@ -59,57 +64,43 @@ export class VirusAgentService {
         return f?.mayBeFirewall && !f.certainFirewall;
       });
 
-      if (fact.hasDaemonScan) {
-        if (possibleDaemon.length === 1) {
-          const [i, j] = possibleDaemon[0];
-          const f = this.kb.get(`${i},${j}`)!;
-          f.certainDaemon = true;
-          f.mayBeDaemon = false;
-          this.kb.set(`${i},${j}`, f);
-        } else {
-          for (const [i, j] of adj) {
-            const k = `${i},${j}`;
-            const f = this.kb.get(k) || {} as Fact;
-            if (!f.safe && !f.certainDaemon) {
-              f.mayBeDaemon = true;
-              this.kb.set(k, f);
-            }
-          }
-        }
-      } else {
+      // Certainty logic
+      if (fact.hasDaemonScan && possibleDaemon.length === 1) {
+        const [i, j] = possibleDaemon[0];
+        const f = this.kb.get(`${i},${j}`)!;
+        f.certainDaemon = true;
+        f.mayBeDaemon = false;
+        this.kb.set(`${i},${j}`, f);
+      }
+
+      if (fact.hasFirewallGlitch && possibleFirewall.length === 1) {
+        const [i, j] = possibleFirewall[0];
+        const f = this.kb.get(`${i},${j}`)!;
+        f.certainFirewall = true;
+        f.mayBeFirewall = false;
+        this.kb.set(`${i},${j}`, f);
+      }
+
+      // No percept means neighbors are *probably* safe
+      if (!fact.hasDaemonScan) {
         for (const [i, j] of adj) {
           const k = `${i},${j}`;
           const f = this.kb.get(k) || {} as Fact;
-          f.safe = true;
-          f.mayBeDaemon = false;
-          this.kb.set(k, f);
+          if (!f.certainDaemon && !f.mayBeDaemon && !f.certainFirewall && !f.mayBeFirewall) {
+            f.safe = true;
+            this.kb.set(k, f);
+          }
         }
       }
 
-      if (fact.hasFirewallGlitch) {
-        if (possibleFirewall.length === 1) {
-          const [i, j] = possibleFirewall[0];
-          const f = this.kb.get(`${i},${j}`)!;
-          f.certainFirewall = true;
-          f.mayBeFirewall = false;
-          this.kb.set(`${i},${j}`, f);
-        } else {
-          for (const [i, j] of adj) {
-            const k = `${i},${j}`;
-            const f = this.kb.get(k) || {} as Fact;
-            if (!f.safe && !f.certainFirewall) {
-              f.mayBeFirewall = true;
-              this.kb.set(k, f);
-            }
-          }
-        }
-      } else {
+      if (!fact.hasFirewallGlitch) {
         for (const [i, j] of adj) {
           const k = `${i},${j}`;
           const f = this.kb.get(k) || {} as Fact;
-          f.safe = true;
-          f.mayBeFirewall = false;
-          this.kb.set(k, f);
+          if (!f.certainDaemon && !f.mayBeDaemon && !f.certainFirewall && !f.mayBeFirewall) {
+            f.safe = true;
+            this.kb.set(k, f);
+          }
         }
       }
     }
@@ -118,19 +109,33 @@ export class VirusAgentService {
   private planNextMove(): [number, number] {
     const [x, y] = this.position;
     const adjacentTiles = this.getAdjacentTiles(x, y);
-    let nextTile: [number, number] | null = null;
+
+    const unknownDanger = (cell: Fact | undefined) =>
+      cell && !cell.certainDaemon && !cell.certainFirewall && !cell.mayBeDaemon && !cell.mayBeFirewall;
 
     for (const [i, j] of adjacentTiles) {
-      const key = `${i},${j}`;
-      const cell = this.kb.get(key);
-
-      if (cell && !cell.visited && !cell.mayBeFirewall && !cell.mayBeDaemon) {
-        nextTile = [i, j];
-        break;
+      const cell = this.kb.get(`${i},${j}`);
+      if (cell?.safe && !cell.visited && unknownDanger(cell)) {
+        this.position = [i, j];
+        return this.position;
       }
     }
 
-    this.position = nextTile || this.position;
+    for (const [i, j] of adjacentTiles) {
+      const cell = this.kb.get(`${i},${j}`);
+      if (!cell?.visited && unknownDanger(cell)) {
+        this.position = [i, j];
+        return this.position;
+      }
+    }
+
+    for (const [i, j] of adjacentTiles) {
+      const cell = this.kb.get(`${i},${j}`);
+      if (cell?.safe && unknownDanger(cell)) {
+        this.position = [i, j];
+        return this.position;
+      }
+    }
 
     return this.position;
   }

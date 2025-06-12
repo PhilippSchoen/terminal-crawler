@@ -3,7 +3,7 @@ import {GameEntity} from '../game-entity';
 export class GridEntity implements GameEntity {
 
   position = { x: 0, y: 0 };
-  cells: { x: number; y: number; size: number }[][] = [];
+  cells: { x: number; y: number; size: number, gameEntity?: GameEntity }[][] = [];
 
   constructor(public ctx: CanvasRenderingContext2D) {
     this.initCells();

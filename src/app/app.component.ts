@@ -5,8 +5,9 @@ import {DaemonEntity} from '../game/game-entities/daemon.entity';
 import {DatabaseEntity} from '../game/game-entities/database.entity';
 import {GridEntity} from '../game/game-entities/grid.entity';
 import {BorderEntity} from '../game/game-entities/border.entity';
-import {VirusAgentService} from '../services/virus-agent.service';
-import {Percept} from '../services/entities/percept';
+import {VirusAgentService} from '../services/virus-agent/virus-agent.service';
+import {Percept} from '../services/virus-agent/entities/percept';
+import {AudioService} from '../services/audio/audio.service';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,7 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('canvas', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  constructor(private agent: VirusAgentService) {
+  constructor(private agent: VirusAgentService, private audioService: AudioService) {
   }
 
   private ctx!: CanvasRenderingContext2D;
@@ -41,12 +42,6 @@ export class AppComponent implements AfterViewInit {
     this.grid = new GridEntity(this.ctx);
     this.border = new BorderEntity(this.ctx);
 
-    this.virus.position = this.grid.cells[3][3];
-    this.daemon1.position = this.grid.cells[1][4];
-    this.daemon2.position = this.grid.cells[5][1];
-    this.firewall.position = this.grid.cells[2][2];
-    this.database.position = this.grid.cells[4][4];
-
     requestAnimationFrame(this.animate);
   }
 
@@ -57,6 +52,17 @@ export class AppComponent implements AfterViewInit {
   }
 
   private animate = (timestamp: number) => {
+    this.virus.position = this.grid.cells[3][3];
+    this.grid.cells[3][3].gameEntity = this.virus;
+    this.daemon1.position = this.grid.cells[1][4];
+    this.grid.cells[1][4].gameEntity = this.daemon1;
+    this.daemon2.position = this.grid.cells[5][1];
+    this.grid.cells[5][1].gameEntity = this.daemon2;
+    this.firewall.position = this.grid.cells[2][2];
+    this.grid.cells[2][2].gameEntity = this.firewall;
+    this.database.position = this.grid.cells[4][4];
+    this.grid.cells[4][4].gameEntity = this.database;
+
     this.gameLoop(timestamp);
 
     this.draw();
@@ -101,15 +107,15 @@ export class AppComponent implements AfterViewInit {
 
   private createPercept() {
     const percept: Percept = {daemonScan: false, firewallGlitch: false, databasePort: false};
-    if(this.virus.position == this.database.position) {
+    if(this.virus.position.x == this.database.position.x && this.virus.position.y == this.database.position.y) {
       percept.databasePort = true;
     }
-    const adjacentCells = this.getAdjacentCells(this.virus.position);
+    const adjacentCells = this.getAdjacentCells({x: this.agent.position[0], y: this.agent.position[1]});
     for (const cell of adjacentCells) {
-      if (cell.x === this.daemon1.position.x && cell.y === this.daemon1.position.y) {
+      if (this.grid.cells[cell.y][cell.x].gameEntity instanceof DaemonEntity) {
         percept.daemonScan = true;
       }
-      if (cell.x === this.firewall.position.x && cell.y === this.firewall.position.y) {
+      if (this.grid.cells[cell.y][cell.x].gameEntity instanceof FirewallEntity) {
         percept.firewallGlitch = true;
       }
     }
