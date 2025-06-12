@@ -105,7 +105,7 @@ export class AppComponent implements AfterViewInit {
 
   private createPercept() {
     const percept: Percept = {daemonScan: false, firewallGlitch: false, databasePort: false};
-    if(this.virus.position.x == this.database.position.x && this.virus.position.y == this.database.position.y) {
+    if(this.grid.cells[this.agent.position[1]][this.agent.position[0]].gameEntity instanceof DatabaseEntity) {
       percept.databasePort = true;
     }
     const adjacentCells = this.getAdjacentCells({x: this.agent.position[0], y: this.agent.position[1]});
@@ -122,6 +122,7 @@ export class AppComponent implements AfterViewInit {
 
   private fixedUpdate() {
     const percept = this.createPercept();
+    console.log('Percept:', percept);
     const [x, y] = this.agent.perceive(percept);
     this.virus.position = this.grid.cells[x][y];
   }

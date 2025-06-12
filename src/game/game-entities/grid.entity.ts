@@ -10,6 +10,7 @@ export class GridEntity implements GameEntity {
   }
 
   draw(timestamp: number): void {
+    const oldCells = [...this.cells];
     this.cells = [];
     const ctx = this.ctx;
     ctx.save();
@@ -28,6 +29,7 @@ export class GridEntity implements GameEntity {
         const py = y * cellSize + (height - rows * cellSize) / 2;
 
         this.cells[y].push({ x: px + cellSize / 2, y: py + cellSize / 2, size: cellSize });
+        this.cells[y][x].gameEntity = oldCells[y]?.[x]?.gameEntity;
 
         this.drawBackgroundTint(ctx, px, py, cellSize);
 

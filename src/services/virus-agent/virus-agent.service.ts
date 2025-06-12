@@ -33,13 +33,13 @@ export class VirusAgentService {
       const adjacentCell = this.kb.get(adjacentKey) || {} as Fact;
 
       if (percept.firewallGlitch) {
-        if (!adjacentCell.safe && !adjacentCell.certainFirewall) {
+        if (!adjacentCell.safe && !adjacentCell.certainFirewall && !adjacentCell.visited) {
           adjacentCell.mayBeFirewall = true;
         }
       }
 
       if (percept.daemonScan) {
-        if (!adjacentCell.safe && !adjacentCell.certainDaemon) {
+        if (!adjacentCell.safe && !adjacentCell.certainDaemon && !adjacentCell.visited) {
           adjacentCell.mayBeDaemon = true;
         }
       }
@@ -82,27 +82,15 @@ export class VirusAgentService {
       }
 
       // No percept means neighbors are *probably* safe
-      if (!fact.hasDaemonScan) {
+      if (!fact.hasDaemonScan && !fact.hasFirewallGlitch) {
         for (const [i, j] of adj) {
           const k = `${i},${j}`;
           const f = this.kb.get(k) || {} as Fact;
-          if (!f.certainDaemon && !f.mayBeDaemon && !f.certainFirewall && !f.mayBeFirewall) {
-            f.safe = true;
-            this.kb.set(k, f);
-          }
+          f.safe = true;
+          this.kb.set(k, f);
         }
       }
 
-      if (!fact.hasFirewallGlitch) {
-        for (const [i, j] of adj) {
-          const k = `${i},${j}`;
-          const f = this.kb.get(k) || {} as Fact;
-          if (!f.certainDaemon && !f.mayBeDaemon && !f.certainFirewall && !f.mayBeFirewall) {
-            f.safe = true;
-            this.kb.set(k, f);
-          }
-        }
-      }
     }
   }
 
