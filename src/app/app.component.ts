@@ -122,7 +122,6 @@ export class AppComponent implements AfterViewInit {
 
   private fixedUpdate() {
     const percept = this.createPercept();
-    console.log('Percept:', percept);
     const [x, y] = this.agent.perceive(percept);
     this.virus.position = this.grid.cells[x][y];
   }
