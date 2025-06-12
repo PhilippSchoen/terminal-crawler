@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class AudioService {
-  private audio = new Audio('assets/audio/terminal_runner.mp3');
+  private audio = new Audio('assets/audio/terminal_crawler.mp3');
   private hasStarted = false;
 
   constructor() {

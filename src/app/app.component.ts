@@ -42,6 +42,8 @@ export class AppComponent implements AfterViewInit {
     this.grid = new GridEntity(this.ctx);
     this.border = new BorderEntity(this.ctx);
 
+    setInterval(() => this.fixedUpdate(), 500);
+
     requestAnimationFrame(this.animate);
   }
 
@@ -52,8 +54,6 @@ export class AppComponent implements AfterViewInit {
   }
 
   private animate = (timestamp: number) => {
-    this.virus.position = this.grid.cells[3][3];
-    this.grid.cells[3][3].gameEntity = this.virus;
     this.daemon1.position = this.grid.cells[1][4];
     this.grid.cells[1][4].gameEntity = this.daemon1;
     this.daemon2.position = this.grid.cells[5][1];
@@ -100,9 +100,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   private gameLoop(timestamp: number) {
-    const percept = this.createPercept();
-    const [x, y] = this.agent.perceive(percept);
-    this.virus.position = this.grid.cells[x][y];
+
   }
 
   private createPercept() {
@@ -120,6 +118,12 @@ export class AppComponent implements AfterViewInit {
       }
     }
     return percept;
+  }
+
+  private fixedUpdate() {
+    const percept = this.createPercept();
+    const [x, y] = this.agent.perceive(percept);
+    this.virus.position = this.grid.cells[x][y];
   }
 
   private getAdjacentCells(cell: { x: number; y: number }): { x: number; y: number }[] {
