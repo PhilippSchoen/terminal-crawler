@@ -64,7 +64,6 @@ export class VirusAgentService {
         return f?.mayBeFirewall && !f.certainFirewall;
       });
 
-      // Certainty logic
       if (fact.hasDaemonScan && possibleDaemon.length === 1) {
         const [i, j] = possibleDaemon[0];
         const f = this.kb.get(`${i},${j}`)!;
@@ -81,7 +80,6 @@ export class VirusAgentService {
         this.kb.set(`${i},${j}`, f);
       }
 
-      // No percept means neighbors are *probably* safe
       if (!fact.hasDaemonScan && !fact.hasFirewallGlitch) {
         for (const [i, j] of adj) {
           const k = `${i},${j}`;
@@ -98,12 +96,14 @@ export class VirusAgentService {
     const [x, y] = this.position;
     const adjacentTiles = this.getAdjacentTiles(x, y);
 
-    const unknownDanger = (cell: Fact | undefined) =>
-      cell && !cell.certainDaemon && !cell.certainFirewall && !cell.mayBeDaemon && !cell.mayBeFirewall;
+    for(const [i, j] of adjacentTiles) {
+      const cell = this.kb.get(`${i},${j}`);
+      console.log("Cell at", `${i},${j}`, ":", cell);
+    }
 
     for (const [i, j] of adjacentTiles) {
       const cell = this.kb.get(`${i},${j}`);
-      if (cell?.safe && !cell.visited && unknownDanger(cell)) {
+      if (cell && cell.safe && !cell.visited) {
         this.position = [i, j];
         return this.position;
       }
@@ -111,15 +111,7 @@ export class VirusAgentService {
 
     for (const [i, j] of adjacentTiles) {
       const cell = this.kb.get(`${i},${j}`);
-      if (!cell?.visited && unknownDanger(cell)) {
-        this.position = [i, j];
-        return this.position;
-      }
-    }
-
-    for (const [i, j] of adjacentTiles) {
-      const cell = this.kb.get(`${i},${j}`);
-      if (cell?.safe && unknownDanger(cell)) {
+      if (cell && cell.visited) {
         this.position = [i, j];
         return this.position;
       }
