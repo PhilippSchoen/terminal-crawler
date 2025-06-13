@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "dungeon-crawler-agent": {
+    "terminal-crawler": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/dungeon-crawler-agent",
+            "outputPath": "dist/terminal-crawler",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -64,10 +64,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "dungeon-crawler-agent:build:production"
+              "buildTarget": "terminal-crawler:build:production"
             },
             "development": {
-              "buildTarget": "dungeon-crawler-agent:build:development"
+              "buildTarget": "terminal-crawler:build:development"
             }
           },
           "defaultConfiguration": "development"
