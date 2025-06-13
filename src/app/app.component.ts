@@ -45,7 +45,7 @@ export class AppComponent implements AfterViewInit {
     this.border = new BorderEntity(this.ctx);
     this.dashboard = new DashboardEntity(this.ctx);
 
-    setInterval(() => this.fixedUpdate(), 500);
+    setInterval(() => this.fixedUpdate(), 2000);
 
     requestAnimationFrame(this.animate);
   }
@@ -115,10 +115,10 @@ export class AppComponent implements AfterViewInit {
     }
     const adjacentCells = this.getAdjacentCells({x: this.agent.position[0], y: this.agent.position[1]});
     for (const cell of adjacentCells) {
-      if (this.grid.cells[cell.y][cell.x].gameEntity instanceof DaemonEntity) {
+      if (this.grid.cells[cell.x][cell.y].gameEntity instanceof DaemonEntity) {
         percept.daemonScan = true;
       }
-      if (this.grid.cells[cell.y][cell.x].gameEntity instanceof FirewallEntity) {
+      if (this.grid.cells[cell.x][cell.y].gameEntity instanceof FirewallEntity) {
         percept.firewallGlitch = true;
       }
     }
