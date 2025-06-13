@@ -133,6 +133,7 @@ export class AppComponent implements AfterViewInit {
     if( this.grid.cells[x][y].gameEntity instanceof DatabaseEntity) {
       this.database.isVisible = false;
     }
+    this.dashboard.percept = this.createPercept();
   }
 
   private getAdjacentCells(cell: { x: number; y: number }): { x: number; y: number }[] {
