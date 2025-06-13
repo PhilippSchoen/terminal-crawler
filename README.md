@@ -4,4 +4,4 @@ to defend against a logical agent with a knowledge base, that is trying to breac
 
 All art and animations in the game are pure code.
 
-You can play it here: [Terminal Crawler](insert link here)
+You can play it here: [Terminal Crawler](https://philippschoen.github.io/terminal-crawler/)
