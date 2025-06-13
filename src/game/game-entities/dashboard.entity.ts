@@ -10,12 +10,13 @@ export class DashboardEntity implements GameEntity {
     firewallGlitch: false,
     databasePort: false,
   };
+  isSystemBreached = false;
 
   draw(timestamp: number): void {
     const { ctx } = this;
     const { x, y } = this.position;
-    const width = 230;
-    const height = 110;
+    const width = 240;
+    const height = 140;
 
     ctx.save();
     ctx.fillStyle = '#000000dd';
@@ -32,6 +33,7 @@ export class DashboardEntity implements GameEntity {
     this.drawStatus(ctx, x + 10, y + 60, 'FIREWALL GLITCH', this.percept.firewallGlitch);
     this.drawStatus(ctx, x + 10, y + 80, 'DAEMON SCAN', this.percept.daemonScan);
     this.drawStatus(ctx, x + 10, y + 100, 'DATABASE PORT', this.percept.databasePort);
+    this.drawBreachStatus(ctx, x + 10, y + 130);
 
     ctx.restore();
   }
@@ -54,5 +56,18 @@ export class DashboardEntity implements GameEntity {
       ctx.fillStyle = 'red';
       ctx.fillText('[OFFLINE]', x + 140, y);
     }
+  }
+
+  private drawBreachStatus(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number
+  ) {
+    ctx.fillStyle = this.isSystemBreached ? 'lime' : 'red';
+    ctx.fillText(
+      `> SYSTEM BREACH: ${this.isSystemBreached ? 'SUCCESS' : 'RUNNING...'}`,
+      x,
+      y
+    );
   }
 }

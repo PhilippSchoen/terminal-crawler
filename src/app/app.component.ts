@@ -28,7 +28,8 @@ export class AppComponent implements AfterViewInit {
   private virus!: VirusEntity;
   private daemon1!: DaemonEntity;
   private daemon2!: DaemonEntity;
-  private firewall!: FirewallEntity;
+  private firewall1!: FirewallEntity;
+  private firewall2!: FirewallEntity;
   private database!: DatabaseEntity;
   private grid!: GridEntity;
   private border!: BorderEntity;
@@ -39,15 +40,17 @@ export class AppComponent implements AfterViewInit {
     this.virus = new VirusEntity(this.ctx);
     this.daemon1 = new DaemonEntity(this.ctx);
     this.daemon2 = new DaemonEntity(this.ctx);
-    this.firewall = new FirewallEntity(this.ctx);
+    this.firewall1 = new FirewallEntity(this.ctx);
+    this.firewall2 = new FirewallEntity(this.ctx);
     this.database = new DatabaseEntity(this.ctx);
     this.grid = new GridEntity(this.ctx);
     this.border = new BorderEntity(this.ctx);
     this.dashboard = new DashboardEntity(this.ctx);
 
-    setInterval(() => this.fixedUpdate(), 2000);
+    setInterval(() => this.fixedUpdate(), 500);
 
     requestAnimationFrame(this.animate);
+    this.virus.position = this.grid.cells[3][3];
   }
 
   @HostListener('window:resize')
@@ -61,11 +64,13 @@ export class AppComponent implements AfterViewInit {
     this.grid.cells[1][4].gameEntity = this.daemon1;
     this.daemon2.position = this.grid.cells[5][1];
     this.grid.cells[5][1].gameEntity = this.daemon2;
-    this.firewall.position = this.grid.cells[2][2];
-    this.grid.cells[2][2].gameEntity = this.firewall;
+    this.firewall1.position = this.grid.cells[2][2];
+    this.grid.cells[2][2].gameEntity = this.firewall1;
+    this.firewall2.position = this.grid.cells[3][5];
+    this.grid.cells[3][6].gameEntity = this.firewall2;
     this.database.position = this.grid.cells[4][4];
     this.grid.cells[4][4].gameEntity = this.database;
-    this.dashboard.position = { x: window.innerWidth - 330, y: 100 };
+    this.dashboard.position = { x: window.innerWidth - 340, y: 100 };
 
     this.gameLoop(timestamp);
 
@@ -76,7 +81,8 @@ export class AppComponent implements AfterViewInit {
     this.virus.draw(timestamp);
     this.daemon1.draw(timestamp);
     this.daemon2.draw(timestamp);
-    this.firewall.draw(timestamp);
+    this.firewall1.draw(timestamp);
+    this.firewall2.draw(timestamp);
     this.database.draw(timestamp);
     this.dashboard.draw(timestamp);
 
@@ -136,6 +142,7 @@ export class AppComponent implements AfterViewInit {
     this.dashboard.percept = this.createPercept();
     if(!this.database.isVisible && this.agent.position[0] === 3 && this.agent.position[1] === 3) {
       this.virus.isSystemBreached = true;
+      this.dashboard.isSystemBreached = true;
     }
   }
 
