@@ -134,6 +134,9 @@ export class AppComponent implements AfterViewInit {
       this.database.isVisible = false;
     }
     this.dashboard.percept = this.createPercept();
+    if(!this.database.isVisible && this.agent.position[0] === 3 && this.agent.position[1] === 3) {
+      this.virus.isSystemBreached = true;
+    }
   }
 
   private getAdjacentCells(cell: { x: number; y: number }): { x: number; y: number }[] {

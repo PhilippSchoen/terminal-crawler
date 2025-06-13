@@ -1,10 +1,10 @@
-import {GameEntity} from '../game-entity';
+import { GameEntity } from '../game-entity';
 
 export class VirusEntity implements GameEntity {
-
   position = { x: 0, y: 0 };
+  isSystemBreached = false;
 
-  constructor(public ctx: CanvasRenderingContext2D) { }
+  constructor(public ctx: CanvasRenderingContext2D) {}
 
   draw(timestamp: number): void {
     const ctx = this.ctx;
@@ -17,9 +17,17 @@ export class VirusEntity implements GameEntity {
 
     const pulse = 10 + Math.sin(timestamp / 300) * 5;
 
-    this.drawVirusCore(ctx, x, y, pulse);
-    this.drawTendrils(ctx, x, y, pulse);
-    this.drawHalo(ctx, x, y, timestamp);
+    if (this.isSystemBreached) {
+      this.drawBreachedCore(ctx, x, y, pulse);
+      this.drawBreachedTendrils(ctx, x, y, pulse, timestamp);
+      this.drawBreachedHalo(ctx, x, y, timestamp);
+    } else {
+      this.drawVirusCore(ctx, x, y, pulse);
+      this.drawTendrils(ctx, x, y, pulse);
+      this.drawHalo(ctx, x, y, timestamp);
+    }
+
+    ctx.restore();
   }
 
   private drawVirusCore(ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number): void {
@@ -33,10 +41,50 @@ export class VirusEntity implements GameEntity {
     ctx.fill();
   }
 
+  private drawBreachedCore(ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number): void {
+    ctx.beginPath();
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, 40 + pulse);
+    gradient.addColorStop(0, 'rgba(0, 255, 0, 0.9)');
+    gradient.addColorStop(0.5, 'rgba(255, 0, 0, 0.3)');
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = gradient;
+    ctx.arc(x, y, 40 + pulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    for (let i = 0; i < 5; i++) {
+      const dx = x + (Math.random() - 0.5) * 60;
+      const dy = y + (Math.random() - 0.5) * 60;
+      const size = Math.random() * 4 + 1;
+      ctx.fillStyle = 'rgba(0,255,150,0.2)';
+      ctx.fillRect(dx, dy, size, size);
+    }
+  }
+
   private drawTendrils(ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number): void {
     ctx.strokeStyle = 'rgba(255, 0, 0, 0.6)';
     ctx.lineWidth = 1.5;
-    const tendrils = 12;
+    this.drawTendrilSegments(ctx, x, y, pulse, 12);
+  }
+
+  private drawBreachedTendrils(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    pulse: number,
+    timestamp: number
+  ): void {
+    ctx.strokeStyle = `rgba(0, 255, 120, ${0.4 + 0.2 * Math.sin(timestamp / 200)})`;
+    ctx.lineWidth = 1.5 + Math.sin(timestamp / 300) * 0.5;
+    this.drawTendrilSegments(ctx, x, y, pulse, 16);
+  }
+
+  private drawTendrilSegments(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    pulse: number,
+    tendrils: number
+  ): void {
     const segments = 15;
     const baseRadius = 40 + pulse;
 
@@ -76,8 +124,17 @@ export class VirusEntity implements GameEntity {
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.stroke();
     }
-
-    ctx.restore();
   }
 
+  private drawBreachedHalo(ctx: CanvasRenderingContext2D, x: number, y: number, timestamp: number): void {
+    for (let i = 0; i < 4; i++) {
+      const r = 45 + i * 12 + Math.sin(timestamp / (150 + i * 60)) * 2;
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(0, ${150 + i * 25}, 255, 0.3)`;
+      ctx.setLineDash([2, 5]);
+      ctx.lineWidth = 0.6;
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
 }
