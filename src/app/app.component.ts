@@ -8,6 +8,7 @@ import {BorderEntity} from '../game/game-entities/border.entity';
 import {VirusAgentService} from '../services/virus-agent/virus-agent.service';
 import {Percept} from '../services/virus-agent/entities/percept';
 import {AudioService} from '../services/audio/audio.service';
+import {DashboardEntity} from '../game/game-entities/dashboard.entity';
 
 @Component({
   selector: 'app-root',
@@ -31,6 +32,7 @@ export class AppComponent implements AfterViewInit {
   private database!: DatabaseEntity;
   private grid!: GridEntity;
   private border!: BorderEntity;
+  private dashboard!: DashboardEntity;
 
   ngAfterViewInit(): void {
     this.resizeCanvasToFullscreen();
@@ -41,6 +43,7 @@ export class AppComponent implements AfterViewInit {
     this.database = new DatabaseEntity(this.ctx);
     this.grid = new GridEntity(this.ctx);
     this.border = new BorderEntity(this.ctx);
+    this.dashboard = new DashboardEntity(this.ctx);
 
     setInterval(() => this.fixedUpdate(), 500);
 
@@ -62,6 +65,7 @@ export class AppComponent implements AfterViewInit {
     this.grid.cells[2][2].gameEntity = this.firewall;
     this.database.position = this.grid.cells[4][4];
     this.grid.cells[4][4].gameEntity = this.database;
+    this.dashboard.position = { x: window.innerWidth - 330, y: 100 };
 
     this.gameLoop(timestamp);
 
@@ -74,6 +78,7 @@ export class AppComponent implements AfterViewInit {
     this.daemon2.draw(timestamp);
     this.firewall.draw(timestamp);
     this.database.draw(timestamp);
+    this.dashboard.draw(timestamp);
 
     requestAnimationFrame(this.animate);
   };
@@ -122,6 +127,7 @@ export class AppComponent implements AfterViewInit {
 
   private fixedUpdate() {
     const percept = this.createPercept();
+    this.dashboard.percept = percept;
     const [x, y] = this.agent.perceive(percept);
     this.virus.position = this.grid.cells[x][y];
     if( this.grid.cells[x][y].gameEntity instanceof DatabaseEntity) {
